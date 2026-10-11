@@ -8,7 +8,7 @@ import { EditHistory } from './edit-history';
 import { registerEditorEvents } from './editor';
 import { Events } from './events';
 import { initFileHandler } from './file-handler';
-import { announceReady, registerIframeApi } from './iframe-api';
+import { announceReady, registerHostLayers, registerIframeApi } from './iframe-api';
 import { registerPreferences } from './preferences';
 import { registerPublishEvents } from './publish';
 import { registerRenderEvents } from './render';
@@ -288,6 +288,9 @@ const main = async () => {
     // registered after the boot-time initialization events above so they are
     // never captured as user changes.
     registerPreferences(events, sceneConfig, urlArgs);
+
+    // the embedding page's layers, camera, background and clip volumes (see src/host/)
+    registerHostLayers(scene, events);
 
     // load async models
     scene.start();

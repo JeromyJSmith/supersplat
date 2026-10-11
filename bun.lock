@@ -7,7 +7,7 @@
       "devDependencies": {
         "@playcanvas/eslint-config": "2.1.0",
         "@playcanvas/pcui": "6.1.4",
-        "@playcanvas/splat-transform": "3.9.0",
+        "@playcanvas/splat-transform": "3.10.1",
         "@rollup/plugin-alias": "6.0.0",
         "@rollup/plugin-image": "3.0.3",
         "@rollup/plugin-json": "6.1.0",
@@ -28,7 +28,7 @@
         "i18next-browser-languagedetector": "8.2.1",
         "i18next-http-backend": "4.0.2",
         "mediabunny": "1.61.0",
-        "playcanvas": "2.23.0",
+        "playcanvas": "2.23.2",
         "postcss": "8.5.28",
         "rollup": "4.63.6",
         "rollup-plugin-scss": "4.0.1",
@@ -132,7 +132,7 @@
 
     "@playcanvas/pcui": ["@playcanvas/pcui@6.1.4", "", { "dependencies": { "@playcanvas/observer": "^1.5.1" }, "peerDependencies": { "react": "^18.3.1 || ^19.0.0", "react-dom": "^18.3.1 || ^19.0.0" } }, "sha512-4QEbbyWsbkD4z4LiMz2f5S0mEeyS1LXjZPAImf/uj8T+L6CGlHC/h2DibYppOWatuB4/BOl3uPpmTV/srTpRdg=="],
 
-    "@playcanvas/splat-transform": ["@playcanvas/splat-transform@3.9.0", "", { "dependencies": { "@adobe/spz": "0.2.3", "webgpu": "0.4.0" }, "peerDependencies": { "playcanvas": "^2.0.0" }, "bin": { "splat-transform": "bin/cli.mjs" } }, "sha512-iPXHyq3jk3FYF0yzjgm7kzaKufDKLEho0bEoqByjt3lANA2aAh2spk/ULLwfI5y+HawleB872SC/EChBFfyiMQ=="],
+    "@playcanvas/splat-transform": ["@playcanvas/splat-transform@3.10.1", "", { "dependencies": { "@adobe/spz": "0.2.3", "webgpu": "0.6.2" }, "peerDependencies": { "playcanvas": "^2.0.0" }, "bin": { "splat-transform": "bin/cli.mjs" } }, "sha512-2/9uCCBHNCJrhGAePCuWFtcxuCqQB93WzKeH4GJ69NJ5Y7cWIKpMsXaBLDaPCAizbYnpAj/eGOMOSHuKBKiZuA=="],
 
     "@rollup/plugin-alias": ["@rollup/plugin-alias@6.0.0", "", { "peerDependencies": { "rollup": ">=4.0.0" }, "optionalPeers": ["rollup"] }, "sha512-tPCzJOtS7uuVZd+xPhoy5W4vThe6KWXNmsFCNktaAh5RTqcLiSfT4huPQIXkgJ6YCOjJHvecOAzQxLFhPxKr+g=="],
 
@@ -718,7 +718,7 @@
 
     "picomatch": ["picomatch@4.0.3", "", {}, "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q=="],
 
-    "playcanvas": ["playcanvas@2.23.0", "", { "dependencies": { "@types/webxr": "^0.5.24", "@webgpu/types": "^0.1.70" } }, "sha512-DNV4AUMqSDkm74P0CdGEi0NJkmDzKzKEtHNW753LPVF0Xd+2YQeNxAprEcPqEpXTo6/o8LXXqpgspYXWYlhDTg=="],
+    "playcanvas": ["playcanvas@2.23.2", "", { "dependencies": { "@types/webxr": "^0.5.24", "@webgpu/types": "^0.1.70" } }, "sha512-NplQOAJ0jtgBrP4Q1d7IooAsMDvu5NfiXDToEzlg7VuqDqfLSyqilwElEXZDbGUKKYm2Y7iGrEJD8tWUMc7xwA=="],
 
     "possible-typed-array-names": ["possible-typed-array-names@1.1.0", "", {}, "sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg=="],
 
@@ -890,7 +890,7 @@
 
     "vary": ["vary@1.1.2", "", {}, "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="],
 
-    "webgpu": ["webgpu@0.4.0", "", { "dependencies": { "@webgpu/types": "^0.1.69", "debug": "^4.4.0" } }, "sha512-F5pimn3Aoi0zWjuRdiVs5TnrUwSzD2lESBohsIUsqyitWkGRQlXU2fhV6ycXlQTa1bvAf3sjqiUpBEpmSQ5ptA=="],
+    "webgpu": ["webgpu@0.6.2", "", { "dependencies": { "@webgpu/types": "^0.1.72", "debug": "^4.4.0" } }, "sha512-3L4GfmqJLvYUIEWJngEQY+2HQiUlAFkg8+P8NDDj3Xx5hHHIFO/r8JW+ynfqBj7kHN4mbnwO74uB+lrRtLhp4Q=="],
 
     "which": ["which@2.0.2", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "node-which": "bin/node-which" } }, "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA=="],
 

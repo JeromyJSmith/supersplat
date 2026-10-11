@@ -1,5 +1,8 @@
 import { Events } from './events';
 import type { SceneExportOptions } from './export-options';
+import { HOST_API_VERSION } from './host/frame';
+import { HostLayers, watchSceneState, type HostEvent } from './host/layers';
+import type { Scene } from './scene';
 import type { Splat } from './splat';
 
 const IS_SCENE_DIRTY = 'supersplat:is-scene-dirty';
@@ -12,6 +15,33 @@ const READY = 'supersplat:ready';
 const IMPORT = 'supersplat:import';
 const SCENE_STATS = 'supersplat:scene-stats';
 const EXPORT = 'supersplat:export';
+
+// Host API version 2: the host's layers as scene elements, the camera, the
+// background and clip volumes (src/host/), and what the editor reports without
+// being asked.
+const HOST_INFO = 'supersplat:host-info';
+const LOAD_LAYERS = 'supersplat:load-layers';
+const SET_LAYER_VISIBLE = 'supersplat:set-layer-visible';
+const LIST_LAYERS = 'supersplat:list-layers';
+const FRAME_LAYER = 'supersplat:frame-layer';
+const SET_CAMERA_POSE = 'supersplat:set-camera-pose';
+const GET_CAMERA_POSE = 'supersplat:get-camera-pose';
+const SET_BACKGROUND = 'supersplat:set-background';
+const APPLY_CLIP_VOLUMES = 'supersplat:apply-clip-volumes';
+const SHOW_EXPORT = 'supersplat:show-export';
+const EVENT = 'supersplat:event';
+
+// the editor's own export dialogs (File > Export), with every option they carry
+const EXPORT_DIALOGS = ['ply', 'splat', 'sog', 'spz', 'viewer'];
+
+const LAYER_REQUESTS = [
+    LOAD_LAYERS, SET_LAYER_VISIBLE, LIST_LAYERS, FRAME_LAYER, SET_CAMERA_POSE, GET_CAMERA_POSE, SET_BACKGROUND,
+    APPLY_CLIP_VOLUMES
+];
+const HOST_REQUESTS = [SCENE_STATS, IMPORT, EXPORT, HOST_INFO, SHOW_EXPORT, ...LAYER_REQUESTS];
+
+// set once the scene exists (registerHostLayers); requests before that are refused
+let hostLayers: HostLayers | null = null;
 
 type HostExportType = 'ply' | 'compressedPly' | 'splat' | 'sog' | 'spz';
 
@@ -143,8 +173,49 @@ const isHostRequest = (event: MessageEvent) => {
     return isEmbedded() && event.source === window.parent && event.origin === hostOrigin();
 };
 
-const handleHostRequest = async (events: Events, data: any): Promise<{ result: any, transfer?: ArrayBuffer[] }> => {
+const layerRequest = (layers: HostLayers, data: any): any => {
     switch (data.type) {
+        case LOAD_LAYERS: return layers.load(data);
+        case SET_LAYER_VISIBLE: return layers.setVisible(data);
+        case LIST_LAYERS: return layers.list();
+        case FRAME_LAYER: return layers.frame(data);
+        case SET_CAMERA_POSE: return layers.setPose(data);
+        case GET_CAMERA_POSE: return layers.getPose();
+        case SET_BACKGROUND: return layers.setBackground(data);
+        case APPLY_CLIP_VOLUMES: return layers.applyClipVolumes(data);
+    }
+};
+
+const handleHostRequest = async (events: Events, data: any): Promise<{ result: any, transfer?: ArrayBuffer[] }> => {
+    if (LAYER_REQUESTS.includes(data.type)) {
+        if (!hostLayers) {
+            return { result: { ok: false, error: 'HOST_NOT_READY: wait for supersplat:ready' } };
+        }
+        return { result: await layerRequest(hostLayers, data) };
+    }
+    switch (data.type) {
+        case HOST_INFO:
+            return {
+                result: {
+                    ok: true,
+                    apiVersion: HOST_API_VERSION,
+                    requests: HOST_REQUESTS,
+                    exportTypes: HOST_EXPORT_TYPES,
+                    exportDialogs: EXPORT_DIALOGS,
+                    upAxis: hostLayers?.upAxis ?? null
+                }
+            };
+        case SHOW_EXPORT: {
+            if (!EXPORT_DIALOGS.includes(data.exportType)) {
+                return { result: { ok: false, error: `exportType must be one of ${EXPORT_DIALOGS.join(', ')}` } };
+            }
+            if (events.invoke('scene.empty')) {
+                return { result: { ok: false, error: 'the scene has no visible splats to export' } };
+            }
+            // not awaited: the dialog stays open until the person answers it
+            events.invoke('scene.export', data.exportType);
+            return { result: { ok: true, exportType: data.exportType } };
+        }
         case SCENE_STATS:
             return { result: sceneStats(events) };
         case IMPORT: {
@@ -221,7 +292,7 @@ const registerIframeApi = (events: Events) => {
         }
 
         const data = event.data;
-        if (!data || typeof data !== 'object' || ![SCENE_STATS, IMPORT, EXPORT].includes(data.type) || !isHostRequest(event)) {
+        if (!data || typeof data !== 'object' || !HOST_REQUESTS.includes(data.type) || !isHostRequest(event)) {
             return;
         }
 
@@ -239,7 +310,22 @@ const registerIframeApi = (events: Events) => {
 // has started.
 const announceReady = () => {
     if (isEmbedded()) {
-        window.parent.postMessage({ type: READY }, hostOrigin());
+        window.parent.postMessage({ type: READY, apiVersion: HOST_API_VERSION }, hostOrigin());
+    }
+};
+
+// The host's layers, camera, background and clip volumes need the scene, which
+// is built after the message listener is registered. Events go to the
+// embedding page only, and only when there is one.
+const registerHostLayers = (scene: Scene, events: Events) => {
+    const notify = (event: HostEvent) => {
+        if (isEmbedded()) {
+            window.parent.postMessage({ type: EVENT, ...event }, hostOrigin());
+        }
+    };
+    hostLayers = new HostLayers(scene, events, notify);
+    if (isEmbedded()) {
+        watchSceneState(events, notify);
     }
 };
 
@@ -259,4 +345,4 @@ const requestNavigateHome = () => {
     window.location.assign('https://superspl.at/');
 };
 
-export { announceReady, registerIframeApi, requestNavigateHome };
+export { announceReady, registerHostLayers, registerIframeApi, requestNavigateHome };
