@@ -157,6 +157,10 @@ const handleHostRequest = async (events: Events, data: any): Promise<{ result: a
                 return { result: { ok: false, error: 'filename is required when the url has none' } };
             }
             const imported = ((await events.invoke('import', [{ filename, url }])) ?? []) as Splat[];
+            // A file loaded by URL is named by its whole URL; show the name the host gave instead.
+            imported.forEach((splat) => {
+                if (splat.name === url) splat.name = filename;
+            });
             return {
                 result: {
                     ok: imported.length > 0,
