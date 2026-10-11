@@ -8,7 +8,7 @@ import { EditHistory } from './edit-history';
 import { registerEditorEvents } from './editor';
 import { Events } from './events';
 import { initFileHandler } from './file-handler';
-import { registerIframeApi } from './iframe-api';
+import { announceReady, registerIframeApi } from './iframe-api';
 import { registerPreferences } from './preferences';
 import { registerPublishEvents } from './publish';
 import { registerRenderEvents } from './render';
@@ -291,6 +291,9 @@ const main = async () => {
 
     // load async models
     scene.start();
+
+    // an embedding page can now drive the editor (see iframe-api.ts)
+    announceReady();
 
     // handle load params
     const loadList = url.searchParams.getAll('load');

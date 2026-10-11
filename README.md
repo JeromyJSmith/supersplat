@@ -46,6 +46,33 @@ To initialize a local development environment for SuperSplat, ensure you have [N
 
 When changes to the source are detected, SuperSplat is rebuilt automatically. Simply refresh your browser to see your changes.
 
+## Embedding the editor in an iframe
+
+A page that embeds the editor in an `<iframe>` can drive it with `postMessage`. Every request is an object with a
+`type` and an optional `id`; the reply carries the same `type` and `id` and a `result`. Requests that change the
+scene or hand data out are answered only when they come from the embedding page (`window.parent`) at its own origin.
+
+| Message | Direction | Fields | Result |
+| --- | --- | --- | --- |
+| `supersplat:ready` | editor to host | none | Sent once when the editor can take requests. |
+| `supersplat:is-scene-dirty` | host to editor | none | `boolean`: the scene has unsaved changes. |
+| `supersplat:navigate-home` | editor to host | none | The menubar logo was clicked; the host owns navigation. |
+| `supersplat:import` | host to editor | `url`, `filename` (optional when the URL ends in one) | `{ ok, filename, imported: string[], stats }`. Loads the file exactly as the `?load=` URL parameter does. |
+| `supersplat:scene-stats` | host to editor | none | `{ dirty, documentName, selection, splats: [{ name, filename, visible, numSplats, numSelected, numLocked, numDeleted }] }`. |
+| `supersplat:export` | host to editor | `fileType` (`ply`, `compressedPly`, `splat`, `sog`, `spz`), `filename` (optional), `maxSHBands` (optional, 0 to 3) | `{ ok, filename, fileType, byteLength, data: ArrayBuffer }`. The visible splats, written with the editor's own writers; the buffer is transferred, not copied. |
+
+A failed request answers `{ ok: false, error }`.
+
+```js
+const editor = document.querySelector('iframe').contentWindow;
+window.addEventListener('message', (event) => {
+    if (event.source !== editor) return;
+    if (event.data.type === 'supersplat:ready') {
+        editor.postMessage({ type: 'supersplat:import', id: 1, url: '/scenes/site.ply' }, location.origin);
+    }
+});
+```
+
 ## Localizing the SuperSplat Editor
 
 The currently supported languages are available here:
