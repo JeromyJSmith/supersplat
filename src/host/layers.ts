@@ -218,15 +218,17 @@ class HostLayers {
     async load(data: any) {
         const { layers, skipped } = parseLayerSpecs(data.layers);
         const up = parseUpAxis(data.upAxis);
-        if (this.entries.size > 0 && up !== this.up && Array.from(this.entries.values()).some(e => e.splat)) {
-            throw new Error('HOST_UP_AXIS_CHANGED: layers are loaded with another up axis; send replace: true');
-        }
         if (data.replace === true) {
             await this.queue(() => {
                 this.entries.forEach(entry => entry.splat?.destroy());
                 this.entries.clear();
+                // the volumes named the layers that are gone
+                this.volumes = [];
+                this.lockedColour(false);
                 return Promise.resolve();
             });
+        } else if (up !== this.up && Array.from(this.entries.values()).some(e => e.splat)) {
+            throw new Error('HOST_UP_AXIS_CHANGED: layers are loaded with another up axis; send replace: true');
         }
         this.up = up;
         const added: Entry[] = [];
